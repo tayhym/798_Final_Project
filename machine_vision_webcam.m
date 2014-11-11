@@ -16,5 +16,6 @@ start(vid)
 for t=1:500
   imgO=getdata(vid,1,'uint8');    %get image from camera
   
+  % transform 
   hvpc.step(imgO);    %see current image in player
 end
