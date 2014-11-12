@@ -31,7 +31,7 @@ try
         
         %transform to colorblind LMS values
         blind_type = 1; % to be changed by user input
-        [L_new, M_new, S_new] = color_blind_sight(1,L,M,S);
+        [L_new, M_new, S_new] = color_blind_sight(3,L,M,S);
         [R_new, G_new, B_new] = LMS_to_RGB(L_new, M_new, S_new);
         img_color_blind = cat(3,R_new,G_new, B_new);
         
