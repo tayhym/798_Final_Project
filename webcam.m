@@ -13,7 +13,7 @@ t = timer('TimerFcn', 'disp(''webcam done''); run=false',...
                  'StartDelay',40);
 start(t);
 run = true;
-             
+
 try 
     start(vidobj);
     hold on;
