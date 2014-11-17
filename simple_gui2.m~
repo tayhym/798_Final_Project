@@ -1,0 +1,16 @@
+function simple_gui2
+% SIMPLE_GUI2 Select a data set from the pop-up menu, then
+% click one of the plot-type push buttons. Clicking the button
+% plots the selected data in the axes.
+
+%  Create and then hide the GUI as it is being constructed.
+f = figure('Visible','off','Position',[360,500,450,285]);
+
+% Add pushbuttons
+hsurf    = uicontrol('Style','pushbutton',...
+             'String','Protanopia','Position',[315,220,70,25]);
+hmesh    = uicontrol('Style','pushbutton',...
+             'String','Deu','Position',[315,180,70,25]);
+hcontour = uicontrol('Style','pushbutton',...
+             'String','Countour','Position',[315,135,70,25]);
+end
