@@ -1,2 +1,2 @@
 %---README---%
-GUI: type gui_emulation_correction at command prompt
+GUI: type simple_gui2 at command prompt / run simple_gui2.m file
