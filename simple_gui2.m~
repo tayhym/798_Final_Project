@@ -1,16 +1,121 @@
-function simple_gui2
-% SIMPLE_GUI2 Select a data set from the pop-up menu, then
-% click one of the plot-type push buttons. Clicking the button
-% plots the selected data in the axes.
+% Matthew Tay
+% gui emulator wrapper for color-blind/video 
 
-%  Create and then hide the GUI as it is being constructed.
-f = figure('Visible','off','Position',[360,500,450,285]);
+function simple_gui2()
+    % SIMPLE_GUI2 Select a data set from the pop-up menu, then
+    % click one of the plot-type push buttons. Clicking the button
+    % plots the selected data in the axes.
 
-% Add pushbuttons
-hsurf    = uicontrol('Style','pushbutton',...
-             'String','Protanopia','Position',[315,220,70,25]);
-hmesh    = uicontrol('Style','pushbutton',...
-             'String','Deu','Position',[315,180,70,25]);
-hcontour = uicontrol('Style','pushbutton',...
-             'String','Countour','Position',[315,135,70,25]);
+    %  Create and then hide the GUI as it is being constructed.
+    f = figure('Visible','off','Position',[360,500,450,285]);
+
+    % Add pushbuttons
+    start_video    = uicontrol('Style','pushbutton',...
+                 'String','start_video','Position',[315,220,70,25], ...
+                    'Callback',{@start_video_Callback});
+    stop_video    = uicontrol('Style','pushbutton',...
+                 'String','stop_video','Position',[315,180,70,25], ... 
+                    'Callback',{@stop_video_Callback});
+    extract_info = uicontrol('Style','pushbutton',...
+                 'String','Extract Info','Position',[315,135,70,25], ...
+                    'Callback',{@extract_info_Callback});
+
+    % Add popup 
+    htext  = uicontrol('Style','text','String','Type',...
+               'Position',[325,90,60,15]);
+    hpopup = uicontrol('Style','popupmenu',...
+               'String',{'Protanopia','Deuteranopia','Tritanopia'},...
+               'Position',[300,50,100,25], ...
+               'Callback',{@popup_menu_Callback});        
+    % Add axes 
+    ha = axes('Units','pixels','Position',[50,60,200,185]);
+
+    % Align components
+    align([start_video,stop_video,extract_info,htext,hpopup],'Center','None');
+
+    %-----------initialize gui with initial values
+    %Make the GUI visible.
+    set(f,'Visible','on');    
+    
+    %------------call back functions---------------%
+    % Push button callbacks. Each callback plots current_data in the
+    % specified plot type.
+
+    function start_video_Callback(source,eventdata) 
+    % start the video
+        type = current_data;
+        imaqreset
+        vidobj=videoinput('macvideo',1);
+        triggerconfig(vidobj, 'manual');
+        t = timer('TimerFcn', 'disp(''webcam done''); run=false',... 
+                         'StartDelay',40);
+        start(t);
+        run = true;
+        try 
+            start(vidobj);
+            hold on;
+            figure(1);
+
+            while (run) % Or any stop condition
+                img = YUY2toRGB(double(getsnapshot(vidobj)));
+
+                R = img(:,:,1);
+                G = img(:,:,2);
+                B = img(:,:,3);
+
+                %transform to LMS space
+                [L,M,S] = RGB_to_LMS(R,G,B);
+
+                %transform to colorblind LMS values
+                [L_new, M_new, S_new] = color_blind_sight(type,L,M,S);
+                [R_new, G_new, B_new] = LMS_to_RGB(L_new, M_new, S_new);
+                img_color_blind = cat(3,R_new,G_new, B_new);
+
+                disp('displaying');
+                subplot(1,2,1);image(uint8(img)); title('original image');
+                subplot(1,2,2); image(uint8(img_color_blind)); title('color_blind image');
+                drawnow;
+            end
+            stop(vidobj);
+            imaqreset
+        catch err
+            fprintf('error occured!');
+            stop(vidobj);
+            imaqreset;
+            close all;
+            rethrow(err);
+        end
+    end
+
+    function stop_video_Callback(source,eventdata) 
+        % stop video
+        figure(2); imshow(imread('pout.tif'));
+    end
+
+    function extract_info_Callback(source,eventdata) 
+    % tentative idea : place some method to extract salient info that 
+    % colorblind user needs to see 
+    end
+    
+    % Add selection of color blind type from popup menu
+    %  Pop-up menu callback. Read the pop-up menu Value property to
+    %  determine which item is currently displayed and make it the
+    %  current data. This callback automatically has access to 
+    %  current_data because this function is nested at a lower level.
+   function popup_menu_Callback(source,eventdata) 
+      % Determine the selected data set.
+      str = source.String;
+      val = source.Value;
+      % Set current data to the selected data set.
+      switch str{val};
+      case 'Protanopia' % User selects Peaks.
+         current_data = 1;
+      case 'Deuteranopia' % User selects Membrane.
+         current_data = 2;
+      case 'Tritanopia' % User selects Sinc.
+         current_data = 3;
+      end
+   end
+    
+   
 end
