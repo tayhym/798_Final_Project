@@ -1,6 +1,6 @@
 %http://stackoverflow.com/questions/8901824/getsnapshot-speedup
 
-
+imaqreset
 vid = videoinput('macvideo', 1); %select input device
 
 hvpc = vision.VideoPlayer;   %create video player object

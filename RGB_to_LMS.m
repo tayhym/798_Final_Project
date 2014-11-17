@@ -4,6 +4,9 @@
 % diversidade dos seres vivos, São Paulo: Moderna.
 
 function [L,M,S] = RGB_to_LMS(R,G,B)
+    R = double(R);
+    G = double(G);
+    B = double(B);
     mtx = [17.8824, 43.5161, 4.11935;
            3.45565, 27.1554, 3.86714;
            0.0299566, 0.184309, 1.46709];
