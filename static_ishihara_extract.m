@@ -2,8 +2,7 @@
 % 18-798 Image, Video, and Multimedia Processing
 % take in a static ishihara test and extract the data somehow
 
-
-function y = static_ishihara_extract(image, blind_type)
+function y = static_ishihara_extract(image)
     % blind_type(1) = protanopia
     lms2lmsp = [0 2.02344 -2.52581; 0 1 0; 0 0 1] ;
     % blind_type(2) = deuteranopia
@@ -23,16 +22,21 @@ function y = static_ishihara_extract(image, blind_type)
     RGBd = zeros(height, width, depth);
     RGBt = zeros(height, width, depth);
 
-    RGB_for_colorblind = zeros(height, width, depth);
-        
+    RGB_for_colorblind1 = zeros(height, width, depth);
+    RGB_for_colorblind2 = zeros(height, width, depth);
+    RGB_for_colorblind3 = zeros(height, width, depth);
+
+    
     B = A;
-    imshow(A);
     figure;
+    subplot(2,2,1);
+    imshow(A);
+    title('Original', 'FontSize', 24);
+
     R = A(:,:,1);
     G = A(:,:,2);
     B = A(:,:,3);
-    
-    
+        
     for i=1:width
         for j=1:height
             key = strcat(sprintf('%03d', R(j, i)), ...
@@ -69,26 +73,139 @@ function y = static_ishihara_extract(image, blind_type)
             rgbd = RGBd(j, i, :);
             rgbt = RGBt(j, i, :);
             
-            if (blind_type == 1)
-               RGB_for_colorblind(j, i, :) = double(rgb) - rgbp(:);
-            elseif (blind_type == 2)
-               RGB_for_colorblind(j, i, :) = double(rgb) - rgbd(:);
-            elseif (blind_type == 3)
-               RGB_for_colorblind(j, i, :) = double(rgb) - rgbt(:);
-            end
+            %if (blind_type == 1)
+               RGB_for_colorblind1(j, i, :) = double(rgb) - rgbp(:);
+            %elseif (blind_type == 2)
+               RGB_for_colorblind2(j, i, :) = double(rgb) - rgbd(:);
+            %elseif (blind_type == 3)
+               RGB_for_colorblind3(j, i, :) = double(rgb) - rgbt(:);
+            %end
             % keys(colors);
         end
     end
     
+    subplot(2,2,2);
     imshow(uint8(RGBp));
-    figure;
+    title('Protanopia', 'FontSize', 24);
+    
+    subplot(2,2,3);
     imshow(uint8(RGBd));
-    figure;
+    title('Deuteranopia', 'FontSize', 24);
+
+    subplot(2,2,4);
     imshow(uint8(RGBt));
+    title('Tritanopia', 'FontSize', 24);
+    %figure;
+    %imshow(uint8(RGB_for_colorblind1));
+    RGB_for_colorblind1 = rgb2gray(uint8(RGB_for_colorblind1));
+    RGB_for_colorblind2 = rgb2gray(uint8(RGB_for_colorblind2));
+    RGB_for_colorblind3 = rgb2gray(uint8(RGB_for_colorblind3));
+
+    for i=1:width
+        for j=1:height
+            if(RGB_for_colorblind1(j, i) > 10)
+               RGB_for_colorblind1(j, i) = 0;
+            else
+               RGB_for_colorblind1(j, i) = 255;
+            end
+        end
+    end
     
-    figure;
-    imshow(uint8(RGB_for_colorblind));
+    for i=1:width
+        for j=1:height
+            if(RGB_for_colorblind2(j, i) > 10)
+               RGB_for_colorblind2(j, i) = 0;
+            else
+               RGB_for_colorblind2(j, i) = 255;
+            end
+        end
+    end    
     
-    keys(colors)
-    values(colors)
+    for i=1:width
+        for j=1:height
+            if(RGB_for_colorblind3(j, i) > 10)
+               RGB_for_colorblind3(j, i) = 0;
+            else
+               RGB_for_colorblind3(j, i) = 255;
+            end
+        end
+    end    
+    
+    %figure;
+    %imshow(RGB_for_colorblind1);
+    
+    h1 = fspecial('gaussian', size(RGB_for_colorblind1), 5.0);
+    g1 = imfilter(RGB_for_colorblind1, h1);
+  
+    h2 = fspecial('gaussian', size(RGB_for_colorblind2), 5.0);
+    g2 = imfilter(RGB_for_colorblind2, h2);
+    
+    h3 = fspecial('gaussian', size(RGB_for_colorblind3), 5.0);
+    g3 = imfilter(RGB_for_colorblind3, h3);
+    
+    %figure;
+    %imshow(g1);
+    %title('Extract Data', 'FontSize', 17);
+    
+    for i=1:width
+        for j=1:height
+            if(g1(j, i) < 150)
+               g1(j, i) = 0;
+            else
+               g1(j, i) = 255;
+            end
+        end
+    end
+    
+    for i=1:width
+        for j=1:height
+            if(g2(j, i) < 150)
+               g2(j, i) = 0;
+            else
+               g2(j, i) = 255;
+            end
+        end
+    end
+    
+    for i=1:width
+        for j=1:height
+            if(g3(j, i) < 150)
+               g3(j, i) = 0;
+            else
+               g3(j, i) = 255;
+            end
+        end
+    end
+    
+    %figure;
+    %imshow(g1);
+    
+    % remove blobs with area between LB and UB
+    LB = 1000;
+    UB = width * height;
+    Iout1 = xor(bwareaopen(g1,LB),  bwareaopen(g1,UB));
+    Iout2 = xor(bwareaopen(g2,LB),  bwareaopen(g2,UB));
+    Iout3 = xor(bwareaopen(g3,LB),  bwareaopen(g3,UB));
+
+    
+    %figure, imshow(Iout1);
+    %figure, imshow(Iout2);
+    %figure, imshow(Iout3);
+
+    final = zeros(height, width);
+    for i=1:width
+        for j=1:height
+            if (Iout1(j, i) == 0 | Iout2(j, i) == 0 | Iout3(j, i) == 0)
+                final(j, i) = 0;
+            else
+                final(j, i) = 255;
+            end
+        end
+    end
+    
+    figure
+    imshow(final)
+    title('Extract Data', 'FontSize', 17);
+
+
 end
