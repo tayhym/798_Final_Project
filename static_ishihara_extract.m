@@ -16,7 +16,8 @@ function y = static_ishihara_extract(image, blind_type)
 
     colors = containers.Map;
     lms    = containers.Map;
-    A = imread(image);
+%     A = imread(image);    % (changed here)
+    A = image;
     [height width, depth] = size(A);
     LMS = zeros(height, width, depth);
     RGBp = zeros(height, width, depth);
@@ -91,4 +92,5 @@ function y = static_ishihara_extract(image, blind_type)
     
     keys(colors)
     values(colors)
+    y = RGB_for_colorblind;
 end

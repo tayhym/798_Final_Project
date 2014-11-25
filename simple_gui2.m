@@ -1,5 +1,5 @@
 % Matthew Tay
-% gui emulator wrapper for color-blind/video 
+% gui emulator wrapper for color-blind/video  
 
 function simple_gui2()
     % SIMPLE_GUI2 Select a data set from the pop-up menu, then
@@ -64,7 +64,9 @@ function simple_gui2()
     % video capture
     set(f,'visible','on');
     stop_button_pushed = 0;
-    
+    current_img = cat(3,peaks_data,peaks_data,peaks_data); % image for extracting information
+    started_video = 0;
+    captured_frame = 0; % semaphore for extract info to proceed.
     %----------------call back functions--------------------%
     % Push button callbacks. Each callback plots current_data in the
     % specified plot type.
@@ -72,6 +74,8 @@ function simple_gui2()
     function start_video_Callback(source,eventdata) 
     % start the video
         stop_button_pushed = 0; % undo any prev push of stop button
+        started_video = 1;
+        captured_frame = 0;
         type = current_data;
         imaqreset
         vidobj=videoinput('macvideo',1);
@@ -87,7 +91,8 @@ function simple_gui2()
 
             while (run && ~stop_button_pushed) % Or any stop condition
                 img = YUY2toRGB(double(getsnapshot(vidobj)));
-
+                current_img = img;
+                
                 R = img(:,:,1);
                 G = img(:,:,2);
                 B = img(:,:,3);
@@ -103,15 +108,16 @@ function simple_gui2()
                 disp('displaying');
                 axes(ha_one); 
                 image(uint8(img)); title('Normal Vision');
+                
                 axes(ha_two);
 %                 set(ha_two,'XAxisLocation','bottom');
 %                 set(ha_two,'YAxisLocation','left');
 %                 subplot(1,2,2);
-%                 set(subplot(1,2,2),'OuterPosition',[300,60,200,185]);     
+%                 set(subplot(1,2,2),'OuterPosition',[300,60,200,185]); 
                 image(uint8(rot90(img_color_blind,2))); title('Color-Blind Vision');
                 view(2);
                 drawnow;          
-                
+                captured_frame = 1;
             end
             stop(vidobj);
             imaqreset
@@ -127,11 +133,24 @@ function simple_gui2()
     function stop_video_Callback(source,eventdata) 
         % stop video
         stop_button_pushed = 1;
+%         started_video = 0;
+        captured_frame = 0;
     end
 
     function extract_info_Callback(source,eventdata) 
-    % tentative idea : place some method to extract salient info that 
+    % method to extract salient info that 
     % colorblind user needs to see 
+    if (started_video && captured_frame)   % must have started video to extract info  
+        stop_button_pushed = 1;
+        drawnow;
+%         extracted_img = static_ishihara_extract(current_img, current_data);
+        h = fspecial('motion', 50, 45);
+        extracted_img = imfilter(current_img, h);
+        axes(ha_two);
+        image(uint8(rot90(extracted_img,2))); title('Extracted Information');
+%         view(2);
+        disp('test');
+    end       
     end
     
     % Add selection of color blind type from popup menu
