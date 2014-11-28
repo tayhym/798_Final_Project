@@ -137,6 +137,7 @@ function simple_gui2()
     end
 
     function extract_info_Callback(source,eventdata) 
+    if (stop_button_pushed) 
     extract_pushed = 1;
     % method to extract salient info that 
     % colorblind user needs to see 
@@ -144,7 +145,7 @@ function simple_gui2()
     n_rows = 720;
     n_cols = 1280;
     if (started_video && captured_frame)   % must have started video to extract info  
-        stop_button_pushed = 1;
+%         stop_button_pushed = 1;
         
         axes(ha_two);
         cla(ha_two);
@@ -161,7 +162,8 @@ function simple_gui2()
         title('Extracted Information');
         view(2);
         disp('test');
-    end       
+    end
+    end 
     end
     
     % Add selection of color blind type from popup menu
