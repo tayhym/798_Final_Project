@@ -90,7 +90,7 @@ function simple_gui2()
             figure(1);
 
             while (run && ~stop_button_pushed) % Or any stop condition
-                captured_frame = 0;
+                
                 img = YUY2toRGB(double(getsnapshot(vidobj)));
                 current_img = img;
                 
@@ -115,7 +115,7 @@ function simple_gui2()
 %                 set(ha_two,'YAxisLocation','left');
 %                 subplot(1,2,2);
 %                 set(subplot(1,2,2),'OuterPosition',[300,60,200,185]); 
-                image(uint8(flipup(fliplr((img_color_blind))))); title('Color-Blind Vision');
+                image(uint8(rot90(img_color_blind,2))); title('Color-Blind Vision');
                 view(2);
                 drawnow;          
                 captured_frame = 1;
