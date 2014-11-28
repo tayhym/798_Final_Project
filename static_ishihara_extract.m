@@ -15,7 +15,7 @@ function y = static_ishihara_extract(image)
 
     colors = containers.Map;
     lms    = containers.Map;
-    A = imread(image);    % (changed here)
+    A = image;    % (changed here)
     [height, width, depth] = size(A);
 
     LMS = zeros(height, width, depth);
@@ -205,7 +205,7 @@ function y = static_ishihara_extract(image)
     end
     
     figure
-    imshow(final)
+    imshow(final);
     title('Extract Data', 'FontSize', 17);
 
     y = final;
