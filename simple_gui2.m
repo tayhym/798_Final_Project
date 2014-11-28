@@ -112,7 +112,7 @@ function simple_gui2()
                 image(uint8(img)); title('Normal Vision');
                 
                 axes(ha_two);
-                image(uint8(flipud(fliplr((img_color_blind))))); title('Color-Blind Vision');
+                image(uint8(flip_ud_multi(flip_lr_multi((img_color_blind))))); title('Color-Blind Vision');
                 view(2);
                 drawnow;          
                 captured_frame = 1;
@@ -195,4 +195,18 @@ function [resized_img] = multi_dimension_resize(img,n_rows, n_cols)
     tmp_three = imresize(img(:,:,3),[n_rows,n_cols]);
     
     resized_img = cat(3,tmp_one,tmp_two,tmp_three);
+end 
+
+function [out] = flip_lr_multi(img)
+    tmp_one = fliplr(img(:,:,1));
+    tmp_two = fliplr(img(:,:,2));
+    tmp_three = fliplr(img(:,:,3));
+    out= cat(3,tmp_one,tmp_two,tmp_three);
+end 
+
+function [out] = flip_ud_multi(img)
+    tmp_one = flipud(img(:,:,1));
+    tmp_two = flipud(img(:,:,2));
+    tmp_three = flipud(img(:,:,3));
+    out= cat(3,tmp_one,tmp_two,tmp_three);
 end 
