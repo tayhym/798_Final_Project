@@ -67,12 +67,14 @@ function simple_gui2()
     current_img = cat(3,peaks_data,peaks_data,peaks_data); % image for extracting information
     started_video = 0;
     captured_frame = 0; % semaphore for extract info to proceed.
+    extract_pushed = 0;
     %----------------call back functions--------------------%
     % Push button callbacks. Each callback plots current_data in the
     % specified plot type.
 
     function start_video_Callback(source,eventdata) 
     % start the video
+        extract_pushed = 0;
         stop_button_pushed = 0; % undo any prev push of stop button
         started_video = 1;
         captured_frame = 0;
@@ -81,7 +83,7 @@ function simple_gui2()
         vidobj=videoinput('macvideo',1);
         triggerconfig(vidobj, 'manual');
         t = timer('TimerFcn', 'disp(''webcam done''); run=false',... 
-                         'StartDelay',40);
+                         'StartDelay',4000);
         start(t);
         run = true;
         try 
@@ -89,8 +91,7 @@ function simple_gui2()
             hold on;
             figure(1);
 
-            while (run && ~stop_button_pushed) % Or any stop condition
-                captured_frame = 0;
+            while (run && ~stop_button_pushed & ~extract_pushed) % Or any stop condition
                 img = YUY2toRGB(double(getsnapshot(vidobj)));
                 current_img = img;
                 
@@ -111,11 +112,7 @@ function simple_gui2()
                 image(uint8(img)); title('Normal Vision');
                 
                 axes(ha_two);
-%                 set(ha_two,'XAxisLocation','bottom');
-%                 set(ha_two,'YAxisLocation','left');
-%                 subplot(1,2,2);
-%                 set(subplot(1,2,2),'OuterPosition',[300,60,200,185]); 
-                image(uint8(flipup(fliplr((img_color_blind))))); title('Color-Blind Vision');
+                image(uint8(flipud(fliplr((img_color_blind))))); title('Color-Blind Vision');
                 view(2);
                 drawnow;          
                 captured_frame = 1;
@@ -132,6 +129,7 @@ function simple_gui2()
     end
 
     function stop_video_Callback(source,eventdata) 
+       extract_pushed = 0;
         % stop video
         stop_button_pushed = 1;
 %         started_video = 0;
@@ -139,20 +137,29 @@ function simple_gui2()
     end
 
     function extract_info_Callback(source,eventdata) 
+    extract_pushed = 1;
     % method to extract salient info that 
     % colorblind user needs to see 
+    loading_img = imread('loading.jpeg');
+    n_rows = 720;
+    n_cols = 1280;
     if (started_video && captured_frame)   % must have started video to extract info  
         stop_button_pushed = 1;
-        drawnow;
-        imwrite(current_img,'test_img.png');
+        
+        axes(ha_two);
+        cla(ha_two);
+        load_img = (multi_dimension_resize(loading_img,n_rows,n_cols));
+        imshow(((load_img)));
+        view(2);
         rescaled_image = imresize(current_img,0.1);
         extracted_img = static_ishihara_extract(rescaled_image);
-%         h = fspecial('motion', 50, 45);
-        extracted_img = imresize(extracted_img,10);
-%         extracted_img = imfilter(current_img, h);
+        extracted_img = imresize(extracted_img,[n_rows,n_cols]);
+        
         axes(ha_two);
-        image(uint8(rot90(extracted_img,2))); title('Extracted Information');
-%         view(2);
+        imshow(uint8(((flipud(extracted_img))))); 
+        reset(ha_two);
+        title('Extracted Information');
+        view(2);
         disp('test');
     end       
     end
@@ -179,3 +186,11 @@ function simple_gui2()
     
    
 end
+
+function [resized_img] = multi_dimension_resize(img,n_rows, n_cols)
+    tmp_one = imresize(img(:,:,1),[n_rows,n_cols]);
+    tmp_two = imresize(img(:,:,2),[n_rows,n_cols]);
+    tmp_three = imresize(img(:,:,3),[n_rows,n_cols]);
+    
+    resized_img = cat(3,tmp_one,tmp_two,tmp_three);
+end 

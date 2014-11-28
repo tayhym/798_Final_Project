@@ -2,7 +2,7 @@
 % 18-798 Image, Video, and Multimedia Processing
 % take in a static ishihara test and extract the data somehow
 
-function y = static_ishihara_extract(image)
+function [y,g1] = static_ishihara_extract(image)
     % blind_type(1) = protanopia
     lms2lmsp = [0 2.02344 -2.52581; 0 1 0; 0 0 1] ;
     % blind_type(2) = deuteranopia
@@ -30,10 +30,10 @@ function y = static_ishihara_extract(image)
 
     
     B = A;
-    figure;
-    subplot(2,2,1);
-    imshow(A);
-    title('Original', 'FontSize', 24);
+%     figure;
+%     subplot(2,2,1);
+%     imshow(A);
+%     title('Original', 'FontSize', 24);
 
     R = A(:,:,1);
     G = A(:,:,2);
@@ -86,17 +86,17 @@ function y = static_ishihara_extract(image)
         end
     end
     
-    subplot(2,2,2);
-    imshow(uint8(RGBp));
-    title('Protanopia', 'FontSize', 24);
+%     subplot(2,2,2);
+%     imshow(uint8(RGBp));
+%     title('Protanopia', 'FontSize', 24);
     
-    subplot(2,2,3);
-    imshow(uint8(RGBd));
-    title('Deuteranopia', 'FontSize', 24);
+%     subplot(2,2,3);
+%     imshow(uint8(RGBd));
+%     title('Deuteranopia', 'FontSize', 24);
 
-    subplot(2,2,4);
-    imshow(uint8(RGBt));
-    title('Tritanopia', 'FontSize', 24);
+%     subplot(2,2,4);
+%     imshow(uint8(RGBt));
+%     title('Tritanopia', 'FontSize', 24);
     %figure;
     %imshow(uint8(RGB_for_colorblind1));
     RGB_for_colorblind1 = rgb2gray(uint8(RGB_for_colorblind1));
@@ -133,8 +133,8 @@ function y = static_ishihara_extract(image)
         end
     end    
     
-    %figure;
-    %imshow(RGB_for_colorblind1);
+%     figure;
+%     imshow(RGB_for_colorblind1);
     
     h1 = fspecial('gaussian', size(RGB_for_colorblind1), 5.0);
     g1 = imfilter(RGB_for_colorblind1, h1);
@@ -145,9 +145,9 @@ function y = static_ishihara_extract(image)
     h3 = fspecial('gaussian', size(RGB_for_colorblind3), 5.0);
     g3 = imfilter(RGB_for_colorblind3, h3);
     
-    %figure;
-    %imshow(g1);
-    %title('Extract Data', 'FontSize', 17);
+%     figure;
+%     imshow(g1);
+%     title('Extract Data', 'FontSize', 17);
     
     for i=1:width
         for j=1:height
@@ -179,8 +179,8 @@ function y = static_ishihara_extract(image)
         end
     end
     
-    %figure;
-    %imshow(g1);
+%     figure;
+%     imshow(g1);
     
     % remove blobs with area between LB and UB
     LB = 1000;
@@ -190,9 +190,9 @@ function y = static_ishihara_extract(image)
     Iout3 = xor(bwareaopen(g3,LB),  bwareaopen(g3,UB));
 
     
-    %figure, imshow(Iout1);
-    %figure, imshow(Iout2);
-    %figure, imshow(Iout3);
+%     figure, imshow(Iout1);
+%     figure, imshow(Iout2);
+%     figure, imshow(Iout3);
 
     final = zeros(height, width);
     for i=1:width
@@ -205,10 +205,10 @@ function y = static_ishihara_extract(image)
         end
     end
     
-    figure
-    imshow(final);
-    title('Extract Data', 'FontSize', 17);
+%     figure
+%     imshow(final);
+%     title('Extract Data', 'FontSize', 17);
 
-    y = final;
+    y = RGB_for_colorblind1;
 
 end
