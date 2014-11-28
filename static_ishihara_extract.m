@@ -208,5 +208,6 @@ function y = static_ishihara_extract(image)
     imshow(final)
     title('Extract Data', 'FontSize', 17);
 
+    y = final;
 
 end
