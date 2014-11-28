@@ -211,4 +211,3 @@ function y = static_ishihara_extract(image)
 
 
 end
->>>>>>> FETCH_HEAD
