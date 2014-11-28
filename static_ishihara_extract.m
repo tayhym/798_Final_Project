@@ -15,8 +15,7 @@ function y = static_ishihara_extract(image)
 
     colors = containers.Map;
     lms    = containers.Map;
-%     A = imread(image);    % (changed here)
-    A = image;
+    A = imread(image);
     [height width, depth] = size(A);
     LMS = zeros(height, width, depth);
     RGBp = zeros(height, width, depth);
@@ -141,7 +140,6 @@ function y = static_ishihara_extract(image)
     h2 = fspecial('gaussian', size(RGB_for_colorblind2), 5.0);
     g2 = imfilter(RGB_for_colorblind2, h2);
     
-
     h3 = fspecial('gaussian', size(RGB_for_colorblind3), 5.0);
     g3 = imfilter(RGB_for_colorblind3, h3);
     
