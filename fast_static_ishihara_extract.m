@@ -41,17 +41,6 @@ function [y,g1] = static_ishihara_extract(image)
         
     for i=1:width
         for j=1:height
-            key = strcat(sprintf('%03d', R(j, i)), ...
-                         sprintf('%03d', G(j, i)), ... 
-                         sprintf('%03d', B(j, i)));
-            %key = A(j, i);
-            % display(key);
-            if (isKey(colors, key))
-                colors(key) = colors(key) + 1;
-            else
-                colors(key) = 1;
-            end
-            
             rgb = A(j, i, :);
             rgb = rgb(:);
             
@@ -133,63 +122,6 @@ function [y,g1] = static_ishihara_extract(image)
         end
     end    
     
-%     figure;
-%     imshow(RGB_for_colorblind1);
-    
-    h1 = fspecial('gaussian', size(RGB_for_colorblind1), 5.0);
-    g1 = imfilter(RGB_for_colorblind1, h1);
-  
-    h2 = fspecial('gaussian', size(RGB_for_colorblind2), 5.0);
-    g2 = imfilter(RGB_for_colorblind2, h2);
-    
-    h3 = fspecial('gaussian', size(RGB_for_colorblind3), 5.0);
-    g3 = imfilter(RGB_for_colorblind3, h3);
-    
-%     figure;
-%     imshow(g1);
-%     title('Extract Data', 'FontSize', 17);
-    
-    for i=1:width
-        for j=1:height
-            if(g1(j, i) < 150)
-               g1(j, i) = 0;
-            else
-               g1(j, i) = 255;
-            end
-        end
-    end
-    
-    for i=1:width
-        for j=1:height
-            if(g2(j, i) < 150)
-               g2(j, i) = 0;
-            else
-               g2(j, i) = 255;
-            end
-        end
-    end
-    
-    for i=1:width
-        for j=1:height
-            if(g3(j, i) < 150)
-               g3(j, i) = 0;
-            else
-               g3(j, i) = 255;
-            end
-        end
-    end
-    
-%     figure;
-%     imshow(g1);
-    
-    % remove blobs with area between LB and UB
-    LB = 1000;
-    UB = width * height;
-    Iout1 = xor(bwareaopen(g1,LB),  bwareaopen(g1,UB));
-    Iout2 = xor(bwareaopen(g2,LB),  bwareaopen(g2,UB));
-    Iout3 = xor(bwareaopen(g3,LB),  bwareaopen(g3,UB));
-
-    
 %     figure, imshow(Iout1);
 %     figure, imshow(Iout2);
 %     figure, imshow(Iout3);
@@ -197,10 +129,10 @@ function [y,g1] = static_ishihara_extract(image)
     final = zeros(height, width);
     for i=1:width
         for j=1:height
-            if (Iout1(j, i) == 0 | Iout2(j, i) == 0 | Iout3(j, i) == 0)
-                final(j, i) = 0;
-            else
+            if (RGB_for_colorblind1(j, i) == 255 | RGB_for_colorblind2(j, i) == 255 | RGB_for_colorblind3(j, i) == 255)
                 final(j, i) = 255;
+            else
+                final(j, i) = 0;
             end
         end
     end
@@ -208,7 +140,7 @@ function [y,g1] = static_ishihara_extract(image)
 %     figure
 %     imshow(final);
 %     title('Extract Data', 'FontSize', 17);
-    
+
     y = final;
 
 end
