@@ -152,7 +152,7 @@ function simple_gui2()
         imshow(((load_img)));
         view(2);
         rescaled_image = imresize(current_img,0.1);
-        extracted_img = fast_static_ishihara_extract(double(rescaled_image));
+        extracted_img = fast_static_ishihara_extract(rescaled_image);
         extracted_img = imresize(extracted_img,[n_rows,n_cols]);
         
         axes(ha_two);
