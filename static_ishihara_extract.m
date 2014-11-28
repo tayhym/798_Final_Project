@@ -15,9 +15,9 @@ function y = static_ishihara_extract(image)
 
     colors = containers.Map;
     lms    = containers.Map;
-%     A = imread(image);    % (changed here)
-    A = image;
-    [height width, depth] = size(A);
+    A = imread(image);    % (changed here)
+    %A = image;
+    [height, width, depth] = size(A);
     LMS = zeros(height, width, depth);
     RGBp = zeros(height, width, depth);
     RGBd = zeros(height, width, depth);
